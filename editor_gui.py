@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import colorchooser
+from tkinter import colorchooser, filedialog
 from enum import Enum
 from PIL import Image
+import os
 
 class DrawAction(Enum):
     PEN = range(1)
@@ -10,6 +11,7 @@ class DrawAction(Enum):
 
 class EditGui:
     def __init__(self, root):
+        self.root = root
         self.main_frame = ttk.Frame(root)
         self.main_frame.pack()
         self.tools_frame = ttk.LabelFrame(self.main_frame, text="Tools")
@@ -20,9 +22,6 @@ class EditGui:
 
         self.canvas = tk.Canvas(self.draw_frame, width=800, height=600)
         self.canvas.pack()
-
-        # Save button, temporary
-        ttk.Button(self.main_frame, text="Save", command=self.save_image).pack()
 
         self.draw_action = DrawAction.PEN
         self.is_drawing = False
@@ -36,11 +35,28 @@ class EditGui:
         self.last_mouse_pos = type("MousePos", (), {"x": 0, "y": 0})()
 
         self.create_tools_gui()
+        self.create_menu()
+
+    def create_menu(self):
+        """
+        Create menu bar with drop down menus here
+        """
+        menu = tk.Menu(self.root)
+        file_menu = tk.Menu(menu, tearoff=False)
+        file_menu.add_command(label="Save", command=self.save_image)
+        menu.add_cascade(label="File", menu=file_menu)
+        self.root.config(menu=menu)
 
     def save_image(self):
-        self.canvas.postscript(file="temp.eps")
-        img = Image.open("temp.eps")
-        img.save("test.png", "png")
+        """
+        Prompt user for save location and save image
+        """
+        filename = filedialog.asksaveasfilename(title="Save Image", filetypes=[("png", "png")])
+        if filename:
+            self.canvas.postscript(file="temp.eps")
+            img = Image.open("temp.eps")
+            img.save(filename+".png")
+            os.remove("temp.eps")
 
     def create_tools_gui(self):
         self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color1")
