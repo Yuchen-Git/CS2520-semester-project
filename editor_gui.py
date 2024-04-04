@@ -25,7 +25,7 @@ class EditGui:
 
         self.draw_action = DrawAction.PEN
         self.is_drawing = False
-        self.color1 = "#000000"
+        self.color1 = tk.StringVar(value="#000000")
         self.pen_size = tk.IntVar(value=1)
 
         self.canvas.bind("<B1-Motion>", self.draw)
@@ -59,23 +59,42 @@ class EditGui:
             os.remove("temp.eps")
 
     def create_tools_gui(self):
+        # Color picker
         self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color1")
         self.color_frame.pack(side=tk.LEFT)
-        self.color_button = tk.Button(self.color_frame, command=self.set_color1, bg=self.color1)
+        self.color_button = tk.Button(self.color_frame, command=self.ask_set_color1, bg=self.color1.get())
         self.color_button.pack()
+        update_color_button = lambda *a: self.color_button.configure(bg=self.color1.get())
+        self.color1.trace_add("write", update_color_button)
 
+
+        # Pen tools widgets
         self.pen_size_frame = ttk.LabelFrame(self.tools_frame, text="Pen Size")
         self.pen_size_frame.pack(side=tk.LEFT)
 
-        tk.Scale(self.pen_size_frame, orient="horizontal", showvalue=0, from_=1, to=25, variable=self.pen_size).pack(side=tk.LEFT)
-        ttk.Label(self.pen_size_frame, textvariable=self.pen_size).pack(side=tk.LEFT)
+        # Pen Size Slider
+        tk.Scale(self.pen_size_frame, orient="horizontal", showvalue=False, from_=1, to=25, variable=self.pen_size).pack(side=tk.LEFT)
+        ttk.Label(self.pen_size_frame, textvariable=self.pen_size, width=2).pack(side=tk.LEFT)
 
-    def set_color1(self):
-        color_tup, hex_color = colorchooser.askcolor(color=self.color1)
+        # Pen Size/Color Demo view
+        pen_size_demo = tk.Canvas(self.pen_size_frame, width=32, height=32)
+        pen_size_demo.pack(side=tk.LEFT)
+        pen_size_demo.create_line(16, 16, 16, 16, width=self.pen_size.get(), joinstyle="round",
+                                  capstyle="round", fill=self.color1.get())
 
+        def pen_size_update(*a):
+            pen_size_demo.delete("all")
+            mid = pen_size_demo.winfo_width() // 2
+            pen_size_demo.create_line(mid, mid, mid, mid, width=self.pen_size.get(), joinstyle="round",
+                                      capstyle="round", fill=self.color1.get())
+
+        self.pen_size.trace_add("write", pen_size_update)
+        self.color1.trace_add("write", pen_size_update)
+
+    def ask_set_color1(self):
+        color_tup, hex_color = colorchooser.askcolor(color=self.color1.get())
         if hex_color:
-            self.color1 = hex_color
-            self.color_button.configure(bg=self.color1)
+            self.color1.set(hex_color)
 
     def draw(self, event):
 
@@ -85,7 +104,7 @@ class EditGui:
                 self.is_drawing = True
             # self.canvas.create_oval(event.x, event.y, event.x, event.y, fill="#FF0000", outline="#FF0000")
             self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(),
-                                    joinstyle="round", capstyle="round", fill=self.color1)
+                                    joinstyle="round", capstyle="round", fill=self.color1.get())
             self.last_mouse_pos.x = event.x
             self.last_mouse_pos.y = event.y
 
