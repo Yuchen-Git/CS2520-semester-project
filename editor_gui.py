@@ -11,6 +11,7 @@ class DrawAction(Enum):
 
 class EditGui:
     def __init__(self, root):
+        self.IMAGE_SIZE = (800, 600)
         self.root = root
         self.main_frame = ttk.Frame(root)
         self.main_frame.pack()
@@ -20,7 +21,7 @@ class EditGui:
         self.draw_frame = ttk.LabelFrame(self.main_frame, text="Image")
         self.draw_frame.pack()
 
-        self.canvas = tk.Canvas(self.draw_frame, width=800, height=600)
+        self.canvas = tk.Canvas(self.draw_frame, width=self.IMAGE_SIZE[0], height=self.IMAGE_SIZE[1])
         self.canvas.pack()
 
         self.draw_action = DrawAction.PEN
@@ -53,7 +54,8 @@ class EditGui:
         """
         filename = filedialog.asksaveasfilename(title="Save Image", filetypes=[("png", "png")])
         if filename:
-            self.canvas.postscript(file="temp.eps")
+            self.root.update()
+            self.canvas.postscript(file="temp.eps", x=0, y=0, height=self.canvas.winfo_reqheight(), width=self.canvas.winfo_reqwidth())
             img = Image.open("temp.eps")
             img.save(filename+".png")
             os.remove("temp.eps")
