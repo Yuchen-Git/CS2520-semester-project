@@ -16,10 +16,10 @@ class EditGui:
         self.main_frame = ttk.Frame(root)
         self.main_frame.pack()
         self.tools_frame = ttk.LabelFrame(self.main_frame, text="Tools")
-        self.tools_frame.pack()
+        self.tools_frame.pack(side=tk.LEFT, fill=tk.Y)
 
         self.draw_frame = ttk.LabelFrame(self.main_frame, text="Image")
-        self.draw_frame.pack()
+        self.draw_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.canvas = tk.Canvas(self.draw_frame, width=self.IMAGE_SIZE[0], height=self.IMAGE_SIZE[1])
         self.canvas.pack()
@@ -62,8 +62,8 @@ class EditGui:
 
     def create_tools_gui(self):
         # Color picker
-        self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color1")
-        self.color_frame.pack(side=tk.LEFT)
+        self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color")
+        self.color_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)  
         self.color_button = tk.Button(self.color_frame, command=self.ask_set_color1, bg=self.color1.get())
         self.color_button.pack()
         update_color_button = lambda *a: self.color_button.configure(bg=self.color1.get())
@@ -72,10 +72,10 @@ class EditGui:
 
         # Pen tools widgets
         self.pen_size_frame = ttk.LabelFrame(self.tools_frame, text="Pen Size")
-        self.pen_size_frame.pack(side=tk.LEFT)
+        self.pen_size_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)
 
         # Pen Size Slider
-        tk.Scale(self.pen_size_frame, orient="horizontal", showvalue=False, from_=1, to=25, variable=self.pen_size).pack(side=tk.LEFT)
+        tk.Scale(self.pen_size_frame, orient="horizontal", showvalue=False, from_=1, to=25, variable=self.pen_size).pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Label(self.pen_size_frame, textvariable=self.pen_size, width=2).pack(side=tk.LEFT)
 
         # Pen Size/Color Demo view
