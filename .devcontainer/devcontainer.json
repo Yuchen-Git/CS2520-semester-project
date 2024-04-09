@@ -12,7 +12,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && pip3 install --user -r requirements.txt",
+	"postCreateCommand": "git config --global --add safe.directory ${containerWorkspaceFolder} && sudo apt-get update && sudo apt-get install -y libgl1-mesa-glx && pip3 install --user -r requirements.txt",
 	"customizations": {
 		"vscode": {
 			"extensions": [
