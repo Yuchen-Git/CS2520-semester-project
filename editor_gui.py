@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import colorchooser, filedialog
 from enum import Enum, auto
-from PIL import Image
+from PIL import Image, ImageTk
 import os
 
 
@@ -50,6 +50,8 @@ class EditGui:
         """
         menu = tk.Menu(self.root)
         file_menu = tk.Menu(menu, tearoff=False)
+        file_menu.add_command(label="Open", command=self.open_image)
+        file_menu.add_command(label="New", command=self.new_image)
         file_menu.add_command(label="Save", command=self.save_image)
         menu.add_cascade(label="File", menu=file_menu)
         self.root.config(menu=menu)
@@ -65,6 +67,22 @@ class EditGui:
             img = Image.open("temp.eps")
             img.save(filename+".png")
             os.remove("temp.eps")
+    def new_image(self):
+        """
+        Clear canvas
+        """
+        self.canvas.delete("all")
+
+    def open_image(self):
+        """
+        Open image from file dialog
+        """
+        filename = filedialog.askopenfilename(title="Open Image", filetypes=[("png", "png"), ("jpg", "jpg"), ("jpeg", "jpeg")])
+        if filename:
+            img = Image.open(filename)
+            img = img.resize(self.IMAGE_SIZE)
+            self.canvas.image = ImageTk.PhotoImage(img)
+            self.canvas.create_image(0, 0, image=self.canvas.image, anchor="nw")
 
     def create_tools_gui(self):
         # Tool Choice
