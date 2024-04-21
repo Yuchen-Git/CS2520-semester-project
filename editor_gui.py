@@ -1,12 +1,18 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import colorchooser, filedialog
-from enum import Enum
+from enum import Enum, auto
 from PIL import Image
 import os
 
+
 class DrawAction(Enum):
-    PEN = range(1)
+    PEN = auto()
+    OVAL = auto()
+    FILLED_OVAL = auto()
+    RECTANGLE = auto()
+    FILLED_RECTANGLE = auto()
+    LINE = auto()
 
 
 class EditGui:
@@ -61,14 +67,24 @@ class EditGui:
             os.remove("temp.eps")
 
     def create_tools_gui(self):
+        # Tool Choice
+        self.tool_choice_frame = ttk.LabelFrame(self.tools_frame, text="Choose Tool")
+        self.tool_choice_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)
+
+        self.tool_choice = ttk.Combobox(self.tool_choice_frame)
+        self.tool_choice.pack()
+        self.tool_choice['values'] = [c for c in DrawAction.__members__]
+        self.tool_choice.current(0)
+        self.tool_choice.bind("<<ComboboxSelected>>", self.update_draw_action)
+
         # Color picker
         self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color")
-        self.color_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)  
-        self.color_button = tk.Button(self.color_frame, command=self.ask_set_color1, bg=self.color1.get())
+        self.color_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)
+
+        self.color_button = tk.Button(self.color_frame, command=self.ask_set_color1, bg=self.color1.get(), width=20)
         self.color_button.pack()
         update_color_button = lambda *a: self.color_button.configure(bg=self.color1.get())
         self.color1.trace_add("write", update_color_button)
-
 
         # Pen tools widgets
         self.pen_size_frame = ttk.LabelFrame(self.tools_frame, text="Pen Size")
@@ -93,23 +109,49 @@ class EditGui:
         self.pen_size.trace_add("write", pen_size_update)
         self.color1.trace_add("write", pen_size_update)
 
+    def update_draw_action(self, event):
+        self.draw_action = DrawAction[self.tool_choice.get()]
+
     def ask_set_color1(self):
         color_tup, hex_color = colorchooser.askcolor(color=self.color1.get())
         if hex_color:
             self.color1.set(hex_color)
 
     def draw(self, event):
+        match self.draw_action:
+            case DrawAction.PEN:
+                if not self.is_drawing:
+                    self.last_mouse_pos.x, self.last_mouse_pos.y = event.x, event.y
+                    self.is_drawing = True
+                # self.canvas.create_oval(event.x, event.y, event.x, event.y, fill="#FF0000", outline="#FF0000")
+                self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(),
+                                        joinstyle="round", capstyle="round", fill=self.color1.get())
+                self.last_mouse_pos.x = event.x
+                self.last_mouse_pos.y = event.y
 
-        if self.draw_action == DrawAction.PEN:
-            if not self.is_drawing:
-                self.last_mouse_pos.x, self.last_mouse_pos.y = event.x, event.y
-                self.is_drawing = True
-            # self.canvas.create_oval(event.x, event.y, event.x, event.y, fill="#FF0000", outline="#FF0000")
-            self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(),
-                                    joinstyle="round", capstyle="round", fill=self.color1.get())
-            self.last_mouse_pos.x = event.x
-            self.last_mouse_pos.y = event.y
+            case _:
+                if not self.is_drawing:
+                    self.last_mouse_pos.x, self.last_mouse_pos.y = event.x, event.y
+                    self.is_drawing = True
+                else:
+                    # If continuing to draw, erase last oval
+                    self.canvas.delete(self.canvas.find_all()[-1])
+
+                match self.draw_action:
+                    case DrawAction.OVAL:
+                        self.canvas.create_oval(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(), outline=self.color1.get())
+                    case DrawAction.FILLED_OVAL:
+                        self.canvas.create_oval(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
+                                                width=self.pen_size.get(), outline=self.color1.get(), fill=self.color1.get())
+                    case DrawAction.RECTANGLE:
+                        self.canvas.create_rectangle(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(), outline=self.color1.get())
+                    case DrawAction.FILLED_RECTANGLE:
+                        self.canvas.create_rectangle(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
+                                                     width=self.pen_size.get(), outline=self.color1.get(), fill=self.color1.get())
+                    case DrawAction.LINE:
+                        self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
+                                                width=self.pen_size.get(),
+                                                joinstyle="round", capstyle="round", fill=self.color1.get())
 
     def release(self, event):
         self.is_drawing = False
-
