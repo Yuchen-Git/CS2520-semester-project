@@ -16,7 +16,12 @@ class DrawAction(Enum):
 
 
 class EditGui:
+
     def __init__(self, root):
+        """
+        Initialize the EditGui class with the root Tkinter object
+        :param root:
+        """
         self.IMAGE_SIZE = (800, 600)
         self.root = root
         self.main_frame = ttk.Frame(root)
@@ -47,7 +52,8 @@ class EditGui:
 
     def create_menu(self):
         """
-        Create menu bar with drop down menus here
+        Create the menu for the GUI
+        :return:
         """
         menu = tk.Menu(self.root)
         file_menu = tk.Menu(menu, tearoff=False)
@@ -60,7 +66,8 @@ class EditGui:
 
     def save_image(self):
         """
-        Prompt user for save location and save image
+        Save the image as a PNG file
+        :return:
         """
         filename = filedialog.asksaveasfilename(title="Save Image", filetypes=[("png", "png")])
         if filename:
@@ -73,13 +80,15 @@ class EditGui:
 
     def new_image(self):
         """
-        Clear canvas
+        Clear the canvas
+        :return:
         """
         self.canvas.delete("all")
 
     def open_image(self):
         """
-        Open image from file dialog
+        Open an image and display it on the canvas
+        :return:
         """
         filename = filedialog.askopenfilename(title="Open Image", filetypes=[("png", "png"), ("jpg", "jpg"), ("jpeg", "jpeg")])
         if filename:
@@ -89,6 +98,10 @@ class EditGui:
             self.canvas.create_image(0, 0, image=self.canvas.image, anchor="nw")
 
     def create_tools_gui(self):
+        """
+        Create the tools GUI
+        :return:
+        """
         # Tool Choice
         self.tool_choice_frame = ttk.LabelFrame(self.tools_frame, text="Choose Tool")
         self.tool_choice_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)
@@ -132,6 +145,11 @@ class EditGui:
                                   capstyle="round", fill=self.color1.get())
 
         def pen_size_update(*a):
+            """
+            Update the pen size demo
+            :param a:
+            :return:
+            """
             pen_size_demo.delete("all")
             mid = pen_size_demo.winfo_width() // 2
             pen_size_demo.create_line(mid, mid, mid, mid, width=self.pen_size.get(), joinstyle="round",
@@ -141,19 +159,36 @@ class EditGui:
         self.color1.trace_add("write", pen_size_update)
 
     def update_draw_action(self, event):
+        """
+        Update the draw action based on the event
+        :param event: Event object
+        """
         self.draw_action = DrawAction[self.tool_choice.get()]
 
     def ask_set_color1(self):
+        """
+        Ask the user to set the first color
+        :return: None
+        """
         color_tup, hex_color = colorchooser.askcolor(color=self.color1.get())
         if hex_color:
             self.color1.set(hex_color)
 
     def ask_set_color2(self):
+        """
+        Ask the user to set the second color
+        :return: None
+        """
         color_tup, hex_color = colorchooser.askcolor(color=self.color2.get())
         if hex_color:
             self.color2.set(hex_color)
 
     def draw(self, event):
+        """
+        Draw on the canvas
+        :param event:
+        :return:
+        """
         match self.draw_action:
             case DrawAction.PEN:
                 if not self.is_drawing:
@@ -190,4 +225,9 @@ class EditGui:
                                                 joinstyle="round", capstyle="round", fill=self.color1.get())
 
     def release(self, event):
+        """
+        Release the mouse button
+        :param event:
+        :return:
+        """
         self.is_drawing = False
