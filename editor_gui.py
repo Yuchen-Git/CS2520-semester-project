@@ -27,12 +27,13 @@ class EditGui:
         self.draw_frame = ttk.LabelFrame(self.main_frame, text="Image")
         self.draw_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-        self.canvas = tk.Canvas(self.draw_frame, width=self.IMAGE_SIZE[0], height=self.IMAGE_SIZE[1])
+        self.canvas = tk.Canvas(self.draw_frame, width=self.IMAGE_SIZE[0], height=self.IMAGE_SIZE[1], background="#FFFFFF")
         self.canvas.pack()
 
         self.draw_action = DrawAction.PEN
         self.is_drawing = False
         self.color1 = tk.StringVar(value="#000000")
+        self.color2 = tk.StringVar(value="#FFFFFF")
         self.pen_size = tk.IntVar(value=1)
 
         self.canvas.bind("<B1-Motion>", self.draw)
@@ -53,6 +54,7 @@ class EditGui:
         file_menu.add_command(label="Open", command=self.open_image)
         file_menu.add_command(label="New", command=self.new_image)
         file_menu.add_command(label="Save", command=self.save_image)
+        file_menu.add_command(label="Exit", command=exit)
         menu.add_cascade(label="File", menu=file_menu)
         self.root.config(menu=menu)
 
@@ -68,7 +70,7 @@ class EditGui:
             img.save(filename+".png")
             img.close()
             os.remove("temp.eps")
-            
+
     def new_image(self):
         """
         Clear canvas
@@ -97,7 +99,7 @@ class EditGui:
         self.tool_choice.current(0)
         self.tool_choice.bind("<<ComboboxSelected>>", self.update_draw_action)
 
-        # Color picker
+        # Color1 picker
         self.color_frame = ttk.LabelFrame(self.tools_frame, text="Color")
         self.color_frame.pack(pady=5, padx=5, fill=tk.X, expand=True)
 
@@ -105,6 +107,15 @@ class EditGui:
         self.color_button.pack()
         update_color_button = lambda *a: self.color_button.configure(bg=self.color1.get())
         self.color1.trace_add("write", update_color_button)
+
+        # Color2 picker
+        self.color_frame2 = ttk.LabelFrame(self.tools_frame, text="Color2")
+        self.color_frame2.pack(pady=5, padx=5, fill=tk.X, expand=True)
+
+        self.color_button2 = tk.Button(self.color_frame2, command=self.ask_set_color2, bg=self.color2.get(), width=20)
+        self.color_button2.pack()
+        update_color_button2 = lambda *a: self.color_button2.configure(bg=self.color2.get())
+        self.color2.trace_add("write", update_color_button2)
 
         # Pen tools widgets
         self.pen_size_frame = ttk.LabelFrame(self.tools_frame, text="Pen Size")
@@ -137,6 +148,11 @@ class EditGui:
         if hex_color:
             self.color1.set(hex_color)
 
+    def ask_set_color2(self):
+        color_tup, hex_color = colorchooser.askcolor(color=self.color2.get())
+        if hex_color:
+            self.color2.set(hex_color)
+
     def draw(self, event):
         match self.draw_action:
             case DrawAction.PEN:
@@ -162,12 +178,12 @@ class EditGui:
                         self.canvas.create_oval(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(), outline=self.color1.get())
                     case DrawAction.FILLED_OVAL:
                         self.canvas.create_oval(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
-                                                width=self.pen_size.get(), outline=self.color1.get(), fill=self.color1.get())
+                                                width=self.pen_size.get(), outline=self.color1.get(), fill=self.color2.get())
                     case DrawAction.RECTANGLE:
                         self.canvas.create_rectangle(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(), outline=self.color1.get())
                     case DrawAction.FILLED_RECTANGLE:
                         self.canvas.create_rectangle(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
-                                                     width=self.pen_size.get(), outline=self.color1.get(), fill=self.color1.get())
+                                                     width=self.pen_size.get(), outline=self.color1.get(), fill=self.color2.get())
                     case DrawAction.LINE:
                         self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y,
                                                 width=self.pen_size.get(),
