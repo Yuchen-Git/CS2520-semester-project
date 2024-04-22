@@ -66,7 +66,9 @@ class EditGui:
             self.canvas.postscript(file="temp.eps", x=0, y=0, height=self.canvas.winfo_reqheight(), width=self.canvas.winfo_reqwidth())
             img = Image.open("temp.eps")
             img.save(filename+".png")
+            img.close()
             os.remove("temp.eps")
+            
     def new_image(self):
         """
         Clear canvas
