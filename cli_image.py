@@ -28,7 +28,6 @@ if args.i:
     # Open image
     IMAGE = PImage.open(args.i)
     if IMAGE:
-        IMAGE = IMAGE.transpose(PImage.TRANSPOSE)
         if args.fliph:
             IMAGE = IMAGE.transpose(PImage.FLIP_LEFT_RIGHT)
         if args.flipv:
@@ -37,7 +36,6 @@ if args.i:
             IMAGE = IMAGE.transpose(PImage.ROTATE_90)
         if args.rotr:
             IMAGE = IMAGE.transpose(PImage.ROTATE_270)
-
         # Save output
         if args.o:
             IMAGE.save(args.o)

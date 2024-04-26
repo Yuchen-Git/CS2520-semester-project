@@ -17,7 +17,7 @@ class DrawAction(Enum):
 
 class EditGui:
 
-    def __init__(self, root):
+    def __init__(self, root, load_image=None):
         """
         Initialize the EditGui class with the root Tkinter object
         :param root:
@@ -49,6 +49,11 @@ class EditGui:
 
         self.create_tools_gui()
         self.create_menu()
+
+        if load_image:
+            load_image = load_image.resize(self.IMAGE_SIZE)
+            self.canvas.image = ImageTk.PhotoImage(load_image)
+            self.canvas.create_image(0, 0, image=self.canvas.image, anchor="nw")
 
     def create_menu(self):
         """
@@ -90,7 +95,7 @@ class EditGui:
         Open an image and display it on the canvas
         :return:
         """
-        filename = filedialog.askopenfilename(title="Open Image", filetypes=[("png", "png"), ("jpg", "jpg"), ("jpeg", "jpeg")])
+        filename = filedialog.askopenfilename(title="Open Image", filetypes=[("png", ".png"), ("jpg", ".jpg"), ("jpeg", ".jpeg"), ("All Files", ".*")])
         if filename:
             img = Image.open(filename)
             img = img.resize(self.IMAGE_SIZE)

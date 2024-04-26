@@ -12,5 +12,5 @@ if __name__ == '__main__':
         # Launch gui here, open input_image if available
         root = tkinter.Tk()
         root.title("Tkinter Image Editor")
-        gui = EditGui(root)
+        gui = EditGui(root, input_image)
         root.mainloop()
