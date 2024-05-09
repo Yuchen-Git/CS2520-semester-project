@@ -199,7 +199,6 @@ class EditGui:
                 if not self.is_drawing:
                     self.last_mouse_pos.x, self.last_mouse_pos.y = event.x, event.y
                     self.is_drawing = True
-                # self.canvas.create_oval(event.x, event.y, event.x, event.y, fill="#FF0000", outline="#FF0000")
                 self.canvas.create_line(self.last_mouse_pos.x, self.last_mouse_pos.y, event.x, event.y, width=self.pen_size.get(),
                                         joinstyle="round", capstyle="round", fill=self.color1.get())
                 self.last_mouse_pos.x = event.x
